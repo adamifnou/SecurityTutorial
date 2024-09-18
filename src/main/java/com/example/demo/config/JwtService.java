@@ -9,6 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +20,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY="AA4E5D58A68515E19FC2A89F45C37";
+    private static final String SECRET_KEY="HscwtBGevLrgdHmZAe/80gyYdWmS5QTzq6jXC3e+1es=";
     public String extractUserName(String token) {
         return null;
     }
@@ -56,7 +60,7 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000*60*24))
-                .signWith(getSignInKey(), SignatureAlgorithm.ES256)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
     private Claims extractAllClaims(String token) {
@@ -67,8 +71,18 @@ public class JwtService {
                 .getBody();
     }
 
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
+//    private PrivateKey getSignInKey() {
+//        try {
+//            byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
+//            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+//            KeyFactory kf = KeyFactory.getInstance("EC");
+//            return kf.generatePrivate(spec);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Failed to load private key", e);
+//        }
+//    }
+private Key getSignInKey() {
+    byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+    return Keys.hmacShaKeyFor(keyBytes);
+}
 }
